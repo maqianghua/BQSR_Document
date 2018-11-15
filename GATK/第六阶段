@@ -1,0 +1,49 @@
+第六阶段
+生成BQSR报告
+// recalRableStream：重矫正文件流
+// recalArgs：重矫正参数（用户参数列表）
+// quantizationInfo：量化的信息
+// recalibrationEngine.getFinalRecalibrationTables()：通过engine收集的最终重矫正表
+// recalibrationEngine.getCovariates():保存所有请求的的协变量对象的列表，（必须的+标准的+经验的）协变量
+// 输出GATK报告到RAC.RECAL_TABLE。输入：用户参数列表（共享的命令行参数列表）；量化的信息；重矫正表；请求的协变量列表
+// RecalUtils.outputRecalibrationReport(recalTableStream, recalArgs, quantizationInfo, recalibrationEngine.getFinalRecalibrationTables(), recalibrationEngine.getCovariates());
+public static void outputRecalibrationReport(final PrintStream recalTableStream, final RecalibrationArgumentCollection RAC, final QuantizationInfo quantizationInfo, final RecalibrationTables recalibrationTables, final StandardCovariateList covariates){
+		// 返回一个可读性字符串代表使用的协变量;返回：非空的被逗号分隔的字符串		
+		// covariates.covariateNames()
+		public String covariateNames() {
+			// 返回一个标准协变量类名的列表。返回的列表是不能被修改的；举例：CycleCovariate
+			return String.join(",", getStandardCovariateClassNames());
+		}		
+		/// 根据协变量生成用户报告表(感觉是表头)
+		// RAC.generateReportTable(covariates.covariateNames())
+		public GATKReportTable generateReportTable(final String covariateNames){
+			// GATKReportTable类说明：正则匹配任意的表格使用单独的名称
+			// 利用特定的名称和描述构建一个新的GATK报告，是否通过行ID对行进行排序。输入：表的名称；表的描述；该表的列数；以怎样的方式对行排序(而不是以添加的顺序进行排序)
+			argumentsTable = new GATKReportTable("Arguments", "Recalibration argument collection values used in this run", 2, GATKReportTable.Sorting.SORT_BY_COLUMN);
+		}
+		/// 根据量化的信息，生成量化信息表
+		// quantizationInfo.generateReportTable()
+		public GATKReportTable generateReportTable(){
+			quantizedTable = new GATKReportTable(RecalUtils.QUANTIZED_REPORT_TABLE_TITLE, "Quality quantization map", 3, GATKReportTable.Sorting.SORT_BY_COLUMN);
+		}
+		/// 根据请求的协变量和重矫正表格生成报告表
+		// generateReportTables(recalibrationTables, covariates)
+		public static List<GATKReportTable> generateReportTables(final RecalibrationTables recalibrationTables, final StandardCovariateList covariates) {
+			for (遍历所有的重矫正表格){
+				/// 初始化数组保存列名
+				/// 保存请求的协变量名称，因此以后我们可以参考
+				/// columnNames.add(eventType);/// 这些列名的顺序在此是非常重要的
+				/// 仅有read group table需要添加评估的质量值
+				/// 这个“if”隐式地使用了关于表排序的知识
+				/// 因为我们要从新表开始，所以重置行索引为0
+				// result.add(reportTable);// XXX:使用一个集合将会很慢，因为同样的方法在GATKReportTable上是昂贵的，此处用的是LinkedList（特点：查询慢，增删快）
+			}
+		}
+		// 利用tables创建一个合并的GATK report.报告通过GATKReport.print(PrintStream)输出到流中.输入：根据协变量生成用户报告表（参数表）；量化表；根据请求的协变量和重矫正表格生成报告表（其他重矫正表）；返回：重矫正report	
+		// final GATKReport report = createRecalibrationGATKReport(RAC.generateReportTable(covariates.covariateNames()), quantizationInfo.generateReportTable(), generateReportTables(recalibrationTables, covariates));
+		public static GATKReport createRecalibrationGATKReport(final GATKReportTable argumentTable, final GATKReportTable quantizationTable, final List<GATKReportTable> recalTables) {
+			// 增加一个空表或者填充的表到报告中；输入：需要添加的表
+			report.addTable(argumentTable);
+		}
+
+}

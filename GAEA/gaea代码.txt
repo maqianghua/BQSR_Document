@@ -1,0 +1,22 @@
+代码位置：
+	src/main/java/org.bgi.flexlab.gaea/tools/mapreduce/realigner
+	src/main/java/org.bgi.flexlab.gaea/tools/recalibrator
+	
+
+realinger：
+抽象的
+	D:\GitHub\SOAPgaeaDevelopment4.0\src\main\java\org\bgi\flexlab\gaea\framework\tools\mapreduce\ToolsRunner.java
+	
+协变量位置：
+D:\GitHub\SOAPgaeaDevelopment4.0\src\main\java\org\bgi\flexlab\gaea\tools\recalibrator\covariate\Covariate.java
+D:\GitHub\SOAPgaeaDevelopment4.0\src\main\java\org\bgi\flexlab\gaea\tools\recalibrator\covariate\RequiredCovariate.java
+D:\GitHub\SOAPgaeaDevelopment4.0\src\main\java\org\bgi\flexlab\gaea\tools\recalibrator\covariate\ContextCovariate.java
+D:\GitHub\SOAPgaeaDevelopment4.0\src\main\java\org\bgi\flexlab\gaea\tools\recalibrator\covariate\QualityCovariate.java
+D:\GitHub\SOAPgaeaDevelopment4.0\src\main\java\org\bgi\flexlab\gaea\tools\recalibrator\covariate\ReadGroupCovariate.java
+	
+代码顺序
+D:\GitHub\SOAPgaeaDevelopment4.0\src\main\java\org\bgi\flexlab\gaea\tools\mapreduce\realigner\Realigner.java
+D:\GitHub\SOAPgaeaDevelopment4.0\src\main\java\org\bgi\flexlab\gaea\framework\tools\mapreduce\WindowsBasedSamRecordMapper.java
+D:\GitHub\SOAPgaeaDevelopment4.0\src\main\java\org\bgi\flexlab\gaea\framework\tools\mapreduce\WindowsBasedMapper.java
+D:\GitHub\SOAPgaeaDevelopment4.0\src\main\java\org\bgi\flexlab\gaea\framework\tools\mapreduce\BioJob.java
+D:\GitHub\SOAPgaeaDevelopment4.0\src\main\java\org\bgi\flexlab\gaea\data\mapreduce\partitioner\WindowsBasedPartitioner.java

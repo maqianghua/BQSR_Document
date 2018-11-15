@@ -1,0 +1,57 @@
+杂记
+job.setAnySamInputFormat(option.getInputFormat());
+job.setOutputFormatClass(GaeaBamOutputFormat.class);
+
+setOutputKeyValue：
+Mapper{
+	MapKeyClass：WindowsBasedWritable.class
+	mapValueClass：SamRecordWritable.class,
+}
+Reducer{
+	reduceKeyClass：NullWritable.class,
+	reduceValueClass：SamRecordWritable.class
+}
+
+public clss ItemidGroupingComparator extends WritableComparatoe{
+	// 传入作为key的bean的class类型，以及制定需要让框架做反射获取实例对象
+	protected ItemidGroupingComparator(){
+		super(Orderbean.class, true);
+	}
+
+	// @override
+	public int compare(WritableComparable a, WritableComparable b){
+		OrderBean abean = (OrderBean) a;
+		OrderBean bbean = (OrderBean) b;
+		// 比较两个bean时，指定只比较bean中的orderid
+		return abean.getItemid().compareTo(bbean.getItemid());
+	}
+}
+
+public class ItemIdPartitioner extends Partitioner<OrderBean, NullWritable>{
+	@override
+	public int getPartition(OrderBean bean, NullWritable value, int numReduceTasks){
+		// 相同的id的订单bean，会发往相同的partition，而且，产生的分区数，是会跟用户设置的reduce task数保持一致
+		return (bean.getItemid().hashCode() & Integer.MAX_VALUE) % numReduceTasks;
+	}
+}
+
+对于求同一个订单中最大金额的订单
+Mapper：负责解析数据封装成bean对象
+Reducer:就负责输出key
+static class SecondarySortMap
+static class SecondarySortReducer extends Reducer<OrderBean, NullWritable, Context>{
+	// 到达reduce时，相同id的所有bean已经被看成一组，且金额最大的那个一排在第一位
+	@override
+	protected void reduce(OrderBean key, Iterable<NullWritable> values){
+		context.write(key,NullWritable.get());
+	}
+}
+
+// 在此设置Groupingcomparator类，作用于Reducer
+job.setGroupingComparatorClass(ItemidGroupingComparator.class);
+// 在此设置自定义的partitioner类，作用于Mapper与Reducer之间。
+job.setPartitionerClass(ItemIdPartitioner.class);
+// 设置Reducer的数目
+job.setNumReduceTasks(2);
+// 提交任务
+job.waitForCompletion(true);

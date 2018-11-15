@@ -1,0 +1,35 @@
+问题：
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+4 为什么在加载dbsnp的时候，要加载vcf.window.idx?
+	窗体id索引？
+
+3 readNameHashCode>=Integer.MAX_VALUE时，为什么要将其致为0？
+
+2 windows.extend.size?
+	默认值：500
+1 windows.size?
+	默认值:10000

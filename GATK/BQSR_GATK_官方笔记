@@ -1,0 +1,23 @@
+In practice each basecall gets its own quality score, determined through some dark magic jealously guarded by the manufacturer of the sequencer.
+1.实际情况下，每个碱基都有自己的质量分数，但是这些质量分数却被测序制造商所掌握着。
+Unfortunately the scores produced by the machines are subject to various sources of systematic (non-random) technical error, leading to over- or under-estimated base quality scores in the data. 
+2. 不幸的是，质量分数主要受测序机器的系统技术误差（非随机性），导致超过或低于评估的碱基的质量分数。（测序反应过程的物理或化学变化，甚至是设备瑕疵）
+Anecdotally my impression is that sequencers are more often over-confident than under-confident, but we do occasionally see runs from sequencers that seemed to suffer from low self-esteem
+3. 传闻一般的测序制造商都过于自信（标出的质量值分数高于实际质量值），有时候也会遇到不太自负的一些测序制造商的基因序列
+
+The base recalibration process involves two key steps: first the program builds a model of covariation based on the data and a set of known variants, then it adjusts the base quality scores in the data based on the model. The known variants are used to mask out bases at sites of real (expected) variation, to avoid counting real variants as errors. Outside of the masked sites, every mismatch is counted as an error. The rest is mostly accounting.
+
+There is an optional but highly recommended step that involves building a second model and generating before/after plots to visualize the effects of the recalibration process. This is useful for quality control purposes.
+4. 分两步：
+	4.1 基于数据和已知变异位点的集合，构建协变量模型
+	4.2 在数据上基于模型去调整碱基质量值分数。（已知的变异集合用来标记真正（期盼）变异位点的碱基，以避免计算真变异位点为错误位点，标记之外的每个错配位点为错误位点，剩下的主要是计算了）
+	4.3 建议：
+		4.3.1 建立第二种模型
+		4.3.2 以生成可视化的图像来表示校准前后的效果，（对于质量值的控制很有用）
+Moreover, as is common with sequencing-by-synthesis machine, base mismatches with the reference occur at the end of the reads more frequently than at the beginning.
+5. 通常对于合成测序法，末端的错配比初始端的错配率高
+ Also, mismatches are strongly associated with sequencing context, in that the dinucleotide AC is often much lower quality than TG. 
+ 6. 测序环境导致AC碱基的质量比TG碱基的质量要低。
+ The recalibration tool will not only correct the average Q inaccuracy (shifting from Q25 to Q20) but identify subsets of high-quality bases by separating the low-quality end of read bases AC bases from the high-quality TG bases at the start of the read.
+ 6. 矫正工具不仅能修正不准确的平均质量值，而且还能识别高质量的碱基集合，从read起始端的高质量TG碱基集合中分离出read末端的低质量碱基AC
+ 

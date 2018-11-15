@@ -1,0 +1,85 @@
+问题收集：
+18 RecalDatum{
+	说明：重矫正数据(recalTable)的独立一块，每一块统计了组合协变量的观察数数量和错配到ref上的mismatch数。
+	private static final double MULTIPLIER = 100000.0;//关于multiplier是什么可以参见在numMismatches的讨论
+}
+17 每次调用EventType.values()（或者任何枚举类型）创建一个新的数组实例，但是它们都相等（也就是包含相同的元素）.就BQSR而言，当该数组被创建数十亿次，那是相当昂贵且有巨大浪费的。解决办法就是把数组缓存在cachedEventTypes中。
+	格式：private final EventType[] cachedEventTypes;
+	
+16 对于read上每个碱基计算的所有协变量矩阵的理解：
+	private final int[][][] keys;
+		说名：所有的键值，按事件类型x索引read长度x的协变量
+		举例：keys = new int[EventType.values().length][readLength][numberOfCovariates]
+		补充：keyCache.put(readLength, keys);
+
+15 协变量键值缓存技术{
+	说明：使用一个LRU缓存保存我们看到的每一个read长度作为key，组建一个键值数组。缓存技术使得我们避免为每一个read重新建立数组，导致昂贵的花费。LRU保存的缓存数组的数量比LRU_CACHE_SIZE要小。
+	格式：public final class CovariateKeyCache
+}
+14 执行BAQ修正：public boolean enableBAQ = false;默认值是false，不修正
+
+13 是否执行BAQ，判断是否为包含non-PF的reads？
+
+12 BAQ.java
+	HMM:Hidden Markov Model（隐马尔科夫模型）
+
+11 SNP，INDEL与hard或者soft Clipped有什么联系？
+	SNP：M，EQ，X
+	INDEL：
+		Insertion：I
+		Deletion：D
+	补充：referenceContext没有soft clipped碱基
+
+10 FORCE_PLATFORM和DEFAULT_PLATFORM的区别：
+	FORCE_PLATFORM：假如用户提供，那么每个read的platform都会被强制赋值为FORCE_PLATFORM
+	DEFAULT_PLATFORM：假如read没有platform，用户提供了默认platform，就用用户提供的默认platform
+
+9 原始质量值与默认质量值之间的关系：
+	解答：是补充关系。
+	原始质量值：该标记是告诉GATK使用原始的碱基质量（在BQSR重矫正之前的数据中），被存储在OQ标签中。假如它们存在（OQ），就不使用矫正后的质量分数。read中没有OQ标签，将会使用标准的质量值分数。
+	默认质量值：假如reads丢失一些会全部碱基质量分数，该值将用于所有的碱基质量分数。默认值是-1，表示不能分配
+
+8 WellformedReadFilter类{
+	格式：public final class WellformedReadFilter extends ReadFilter
+	说明：测试一个read时候是引号，格式良好的引号；也就是说内部有重大的不一致性和问题，并且会导致下游出错。假如一个read通过该过滤器，剩下的engine应该能处理它，不会引发错误。
+}
+
+7 评估并分配data hashmap的初始容量是？
+解答：猜测：协变量的存储方式是hashmap吗？不是，是list。应该是分配协变量的存储容量。
+	  猜测2：此处的data hashmap可能指File recalTableFile（应该不对）	
+
+6 Function{
+	格式：public interface Function<T, R>
+	说明:
+		T: 传入参数对象的类型
+		R: 函数返回的结果类型
+}
+
+5 UnaryOperator{
+	格式：public interface UnaryOperator<T> extends Function<T, T>
+	T：传入的参数对象和返回值对象一致，所以叫一元运算符
+
+}
+
+4 针对每条read在该位点获取不同的协变量值，并基于该碱基是否匹配到reference特定的位置。在map中增加该位置{
+	问题：修改的是一个map（是哪一个对象？是不是File recalTableFile），增加该位点，增加的是什么？
+}
+
+3. 对于recalTableFile的理解：{
+	几个协变量的值（几个协变量，就几列）；组合协变量的观察数；ref mismatch数；实际质量分数
+}
+
+2 对于ReadFilter.java:（实现类了过滤接口和序列化接口）{
+	类说明：
+	1 在{@link GATKRead}上运行的过滤器，子类应该通过重写{@link #test(GATKRead)}该方法；
+	2 ReadFilter实现了Predicate和Serializable接口，它提供了一个默认的应用实现，基于实现类的test()实现。
+	3 子类必须有一个空参构造函数，并包含（可选的）参数集合或对于特定的过滤参数带有注释字段，从命令行获得。可选值为true是参数应该有初始化值，因为命令行解析不需要用户提供一个值。当可选值为false，就不会有初始化值（并使用封装类型，拥有null，默认(初始化)值）。否则，他们将会被命令行解析器看到，因为它们已经被提供了。并且用户不会被告知，改参数的值必须在命令行被提供。
+}
+
+1. FeatureContext.java{
+	类方法说明：
+	public <T extends Feature> List<T> getValues(final Collection<FeatureInput<T>> featureDescriptors)
+	1 通过所提供的FeatureInput参数代表的资源里获取所有的特征，和该FeatureContext的查询区间有交集。假如该FeatureContext没有features或区间的备份资源，将会返回空的列表。
+	2 返回的Features不保证有特定的顺序，或者通过所的Features资源发现是全局唯一的。
+}
+	

@@ -1,0 +1,54 @@
+第五阶段
+// 该类封装BQSR量化质量分数所需的信息
+quantizationInfo = new QuantizationInfo(recalibrationEngine.getFinalRecalibrationTables(), recalArgs.QUANTIZING_LEVELS);{
+	/// 用经验质量分布建立直方图
+	/// 获取质量分数表
+	/// 转经验质量分数为整数（已经被MAX_QUAL所capped）
+	/// 对于每一个相同的key(经验质量值分数)的observations数量进行相加
+	/// 直方图是经验质量值对应的观察数量值
+	/// 根据质量值的量化水平，量化质量分数
+	// quantizeQualityScores(quantizationLevels);
+	public void quantizeQualityScores(int nLevels){
+		// 统计学分析一个碱基的最低质量分数认为是合理的。这是因为质量值为6，代表着有25%的的可能性是正确的，也就意味着所有的碱基有相同的可能性。
+		public static final byte MIN_USABLE_Q_SCORE = 6;
+		// 为已有质量量化水平的直方图建立质量量化器。注意：仅仅是系统的接口，创建该对象之后；通过getOriginalToQuantizedMap()方法之后，将会获得该map对象。输入：nObservationsPerQual：有质量分数的碱基数量直方图，注意该直方图，必须从零开始（等价于get(0)=>质量分数为0的碱基数量），并且包含reads上最大质量分数的碱基数量。假如直方图包含很多0数量的直方图，相当于它们量化相对自由；nLevels：质量分数所期望的分布数量，代表全部的原始范围。必须至少为1；minInterestingQual：所有的质量分数<= 该值被认为是无利益相关（unInteresting）的，且可以随意组合的。举例：假如该值的10，那么Q0-Q10的值都可以自由组合，并且量化成一个值。对于ILMN数据拥有很多的Q2的碱基数量，这就导致在Q2里面包含Q0-Q10所有的数据。
+		// QualQuantizer quantizer = new QualQuantizer(empiricalQualCounts, nLevels, QualityUtils.MIN_USABLE_Q_SCORE);/// 量化质量值到所期望的水平数
+		public QualQuantizer(final List<Long> nObservationsPerQual, final int nLevels, final int minInterestingQual){
+			/// 进行明智的检查
+			/// 真正执行量化（quantizer）
+			// final TreeSet<QualInterval> quantizedIntervals:存储质量区间的集合,quantize()该数据结构之后，仅包含高水平的质量区间
+			// 主方法用来计算量化的区间。在构造函数里面当所有输入变量初始化之后被调用。遍历输入变量并建立最小值。区间森林（forest）惩罚数拥有真实的根节点水平数。惩罚区间森林通过贪婪搜寻，找到该最小值。因此不保证能找到最优组合；TODO：开发一个更聪明的算法；返回：区间森林的宽度为质量量化水平数
+			//this.quantizedIntervals = quantize();
+			private TreeSet<QualInterval> quantize(){
+				// 为每个质量创建单独的区间
+				// QualInterval:代表质量分数的连续的区间。qstart和qEnd都被包含了，因此qStart=qEnd=2是质量分数的容器为2
+				// for (遍历每个质量分数对应的观察数){
+					// 将一个phred-scaled的质量值分数转变成错误的可能性（Q30=>0.01）;是Phred-style类型的转换，不是Illumina-style的转换.因为输入是一个byte值，该函数使用了缓存，因此效率高。警告：因为该函数是获取一个最大质量byte类型的值，将Intergers转变成byte值必须小心翼翼。合适的做法就像这样做（(byte)(myInt & 0xFF)）输入： qual：一个编码为byte的phred-scaled质量分数；返回：错误的可能性(0.0-1.0)
+					final double errorRate = QualityUtils.qualToErrorProb((byte)qStart);
+					// QualInterval类的说明：代表质量分数一个连续的区间.qStart和qEnd被包含了，因此qStart=qEnd=2是质量分数容器(bin)为2.					
+					// final QualInterval qi = new QualInterval(qStart, qStart, nObs, (int) Math.floor(nErrors), 0, (byte)qStart);
+				}
+				/// 贪婪算法：当(n intervals >= nlevels):找到该区间，利用最小的惩罚数将其合并
+				// 帮助函数，用来发现并合并最小惩罚数的成对区间.输入：区间值
+				// mergeLowestPenaltyIntervals(intervals);
+				private void mergeLowestPenaltyIntervals(final TreeSet<QualInterval> intervals){
+				 	/// 设置迭代器
+				 	/// 跳过一个
+				 	/// 遍历成对的左边和右边，跟踪合并惩罚值最低的一对
+				 	/// 现在继续合并minMerge对
+				 }
+			}
+			/// 存储该map对象
+			// 给定一个最终区间森林构造函数的一个映射列表；list.get(i)等价于用于原始质量分数i的量化的质量；该函数应给被调用一次,在该对象(map)中初始化对应的缓存值,因为该计算有点昂贵；输入：区间			
+			// this.originalToQuantizedMap = intervalsToMap(quantizedIntervals);
+			private List<Byte> intervalsToMap(final TreeSet<QualInterval> intervals)
+		}
+		/// 构建原始质量与量化后质量的map（使用RAC用户参数里面的标准水平数）
+		// quantizedQuals = quantizer.getOriginalToQuantizedMap();
+		public List<Byte> getOriginalToQuantizedMap(){
+			// 构建从原始的质量(eg.Q30)到量化后质量(eg.Q28)的map。和NObservationsPerQual有相同的范围			
+			// return originalToQuantizedMap;
+			final List<Byte> originalToQuantizedMap;
+		}
+	}
+}
