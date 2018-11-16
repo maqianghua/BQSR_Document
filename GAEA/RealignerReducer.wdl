@@ -61,7 +61,7 @@ public void reduce(WindowsBasedWritable key, Iterable<SamRecordWritable> values,
 					/ 根据染色体信息，窗口起始位置，窗口终止位置获取窗体内碱基序列
 					/ set(chrInfo, start, end);
 					public void set(ChromosomeInformationShare chrInfo, int _start, int _end){
-						/ 获取窗体内到的碱基序列
+						/ 获取窗体内的碱基序列sequences（reference上的碱基序列）
 						/ 获取窗体内所有碱基中包含的已知SNPs
 					}
 				}
@@ -78,15 +78,25 @@ public void reduce(WindowsBasedWritable key, Iterable<SamRecordWritable> values,
 							/ 比对read，通过协变量矫正read
 							/ mapRead(read);
 							private void mapRead(GaeaSamRecord read) {
-								/ 假如read是SOLiDRead或者参数选项是SOLID_RECAL_MODE，就什么都不做
+								/ 假如read是SOLiDRead或者参数选项是SOLID_RECAL_MODE；该read就什么都不做
 								/ 获取read的比对起始位置和终止位置
 								/ 获取read的各个碱基相对于reference的偏移量int[] readOffsets
 								/ 获取read的碱基质量值byte[] quals
 								/ 获取read的碱基byte[] bases
 								/ 设置碱基与dbsnp的一致性，read的协变量
 								/ 遍历read上的碱基{
-									/ 获取该位点碱基相对于reference的位置
-									/ 
+									/ 获取该位点碱基相对于reference的位置qpos
+									/ 判断该位点是SNP为假{
+										/ 该位点与reference上碱基不匹配{
+											/ 假如read的Color Space不一致，退出该read操作。
+											/ 否则,计算该read的协变量
+											/ rcovariate = RecalibratorUtil.computeCovariates(read, covariates);{
+												/ 见RecalibratorUtil.wdl
+											}
+										}
+										/ 假如该碱基不在reference上，或碱基质量值小于6，或该read的协变量为null，或该碱基与read的Color space不一致；就继续下一个碱基操作
+										/ 根据碱基在reference上的位置，碱基字节码，碱基质量，reference上的字符值，read的协变量，更新数据表。
+									} 
 								}
 							}
 						}

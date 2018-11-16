@@ -14,15 +14,22 @@
 
 
 
+9 为什么要将largeKeys设置为false，这样就会是int[][][] mkeys = new int[1][][];
 
+8 对于cycle和Context作为可选的协变量,做成了只能选一个？
+	感觉是
 
+7 qpos和readOffset的关系？
+	int qpos=readOffsets[i-start];
+	qpos:是read上碱基在reference的上索引位置
+	int[] readOffsets:存储的是read上每个碱基在reference上索引的位置。
 
+6 在mapRead那一块，有个判断过滤
 
-
-
-
-
-
+5 为什么在BQSR的info进行添加信息的时候，每个窗体之间有重叠？
+	winNum 	0 		1 		2 			3 			4
+	Start	1 		1 		1*size+1 	2*size+1 	3*size+1
+	end 	2*size	3*size 	4*size+1 	5*size+1 	6*size+1
 
 4 为什么在加载dbsnp的时候，要加载vcf.window.idx?
 	窗体id索引？
