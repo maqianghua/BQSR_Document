@@ -24,7 +24,7 @@ public List<ReadFilter> getDefaultReadFilters() {
 	        filters.add(ReadFilterLibrary.PASSES_VENDOR_QUALITY_CHECK);
 	        return filters;
 		}
-		// 测试一个read是否是“(双引号$quto);格式良好的引号;也就是，该read内部有重大的不一致性和问题，可能会导致下游流程分析的错误，假如一个read通过了该过滤，剩下的engine将能顺利处理该read。（不会产生失败）
+		// 测试一个read是否是“(引号$quto);格式良好的引号;也就是说，该read内部有重大的不一致性和问题，可能会导致下游流程分析的错误，假如一个read通过了该过滤，剩下的engine将能顺利处理该read。（不会产生失败）
 		bqsrFilters.add(new WellformedReadFilter());		
 	}
 }

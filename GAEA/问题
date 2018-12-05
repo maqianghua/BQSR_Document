@@ -1,20 +1,63 @@
 问题：
+19： Color Space一致？与位点与read的color space的区别？
+
+18：Leave是代表一个table？
+	（包含多个readGroup）
+	（一个ReadGroup可能包含多个PU）
+
+17：以下情况适合一个ReadGroup包含多个PU的情况？
+	if ( value instanceof Object[] ) {
+        fillAllLeaves((Object[]) value, newPath, result);
+    } else {
+        result.add(new Leave(newPath, value));
+    }
+
+16:
+	readGroupTable
+	tables[Type.READ_GROUP_TABLE.index] = new NestedObjectArray<RecalibratorDatum>(readGroupNumber, eventSize);
+	qualityTable
+	tables[Type.QUALITY_SCORE_TABLE.index] = new NestedObjectArray<RecalibratorDatum>(readGroupNumber,maxQualityScore, eventSize);
+	CotextTable或CycleTable
+	tables[i] = new NestedObjectArray<RecalibratorDatum>(readGroupNumber, maxQualityScore,covariates[i].maximumKeyValue() + 1, eventSize);
+
+	public NestedObjectArray(final int... elements){
+		size = elements.length;		
+		if(size == 0)
+			throw new UserException("nested object array element size must more than 0.!");		
+		maximumArray = elements.clone();
+		data = new Object[elements[0]];
+	}
+
+15: NestedObjectArray<T>{
+	public void put(T value,int... keys){
+		在该类的对象中增加泛型的值，根据传入的keys。
+		（声明局部变量，调用完毕之后，释放局部变量，那就是等于没有添加）还是理解不够深刻
+	}	
+}
+
+14：
+	private RecalibratorTable recalibratorTables
+	final NestedObjectArray<RecalibratorDatum> rgRecalTable= recalibratorTables
+				.getTable(0);
+	final RecalibratorDatum rgPreviousDatum = rgRecalTable.get(keys[0], eventIndex);
+	final RecalibratorDatum rgThisDatum = RecalibratorDatum.build(quality, isError);
 
 
+13：mContextSize=option.MISMATCHAS_CONTEXT_SIZE(默认值是int 2)
+	iContextSize=option.INDELS_CONTEXT_SIZE(默认值是int 3)
+	对于CycleCovariate和ContextCovariate，取最大值为3
 
+12 public enum EventType{
+	SNP(0,'M'),
+	Insertion(1,'I'),
+	Deletion(1,'D');
+}
 
+11 感觉所有的协变量最后记录的都只是mismatch的值。
 
+10 ReadCovariates里面的largeKeys代表什么含义？导致所有的协变量最后记录的都只是mismatch的值。
 
-
-
-
-
-
-
-
-
-
-9 为什么要将largeKeys设置为false，这样就会是int[][][] mkeys = new int[1][][];
+9 为什么要将largeKeys设置为false，这样就会是int[][][] mkeys = new int[1][read碱基位点][需求的协变量];
 
 8 对于cycle和Context作为可选的协变量,做成了只能选一个？
 	感觉是
@@ -26,7 +69,7 @@
 
 6 在mapRead那一块，有个判断过滤
 
-5 为什么在BQSR的info进行添加信息的时候，每个窗体之间有重叠？
+5 为什么在BQSR的info进行添加信息的时候，每个窗体ID之间有重叠？（size=500）
 	winNum 	0 		1 		2 			3 			4
 	Start	1 		1 		1*size+1 	2*size+1 	3*size+1
 	end 	2*size	3*size 	4*size+1 	5*size+1 	6*size+1

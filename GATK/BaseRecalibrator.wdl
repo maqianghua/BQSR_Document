@@ -3,12 +3,12 @@ public final class BaseRecalibrator extends ReadWalker
 BaseRecalibrator
 * 首先通过碱基质量分数进行重矫正。基于不同的协变量生成一个重矫正的table。默认的协变量是read group，reported quality score，machine cycle，和nucleotide context。
 
-* 该walker产生基于特定协变量的tables。仅仅在已知的变异集合VCF中通过基因座（轨迹）执行遍历. ExAc,genomAD,或者dbsnp资源可以被用作已知变异位点集合。假设我们看到的所有reference mismatch都是错误，并表示为低质量碱基。在该位点看到给定的特殊协变量，因为那里有一大堆数据被用来计算empirical error的可能性，P(error)=num mismatches/num observations。输出的是表格文件，（一些协变量的值，num observations，num mismatches，empirical quality score）
+* 该walker产生基于特定协变量的tables。仅仅在已知的变异集合VCF中通过基因座（轨迹）执行遍历. ExAc,genomAD,或者dbsnp资源可以被用作已知变异位点集合。假设我们看到的所有reference mismatch都是错误和低质量碱基。在该位点看到给定的特殊协变量，因为那里有一大堆数据被用来计算empirical error的可能性，P(error)=num mismatches/num observations。输出的是表格文件，（一些协变量的值，num observations，num mismatches，empirical quality score）
 
 * 输入：read数据，需要评估其碱基质量分数
-* 输入：可跳过的已知多态位点的数据库
+* 输入：可跳过的已知多态位点的数据库（dbsnp）
 
-* 有很多表格的GATK报告文件如下：
+* GATK报告文件有很多如下的表格：
 	参数列表；量化的质量表；通过read group生成的重矫正表；通过质量分数生成的重矫正表；针对所有的可选协变量生成重矫正表；
 
 * GATK报告要趋向于易于读取和计算，查看GATKReport的文档，了解如何操作这个表
@@ -22,7 +22,7 @@ public final class BaseRecalibrator extends ReadWalker
 	private final RecalibrationArgumentCollection recalArgs = new RecalibrationArgumentCollection();
 }
 
-* 本算法是将每一个reference mismatch 表示为一个显示的error，然而真正的基因突变是我们所期望mismatch到reference。因此给定本工具一个真正的多态变异位点的数据集（dbsnp）显得尤为重要，同时也会将会跳过这些点。本工具接收包含VCF，BCF，BED等任意类型的文件作为数据集。对于用户期望排除这些区间内的已知变异位点，仅仅使用-XL my.interval.list 从而跳过处理这些位点。然而请注意这些通过工具的-XL参数反映并过滤掉的位点，并不是真正的变异位点。{
+* 本算法是将每一个reference mismatch 表示为一个显现的error，然而真正的基因突变是我们所期望mismatch到reference。因此给定本工具一个真正的多态变异位点的数据集（dbsnp）显得尤为重要，同时也会将会跳过这些位点。本工具接收包含VCF，BCF，BED等任意类型的文件作为数据集。对于用户期望排除这些区间内的已知变异位点，仅仅使用-XL my.interval.list 从而跳过处理这些位点。然而请注意这些通过工具的-XL参数反映并过滤掉的位点，并不是真正的变异位点。{
 	@Argument(fullName = KNOWN_SITES_ARG_FULL_NAME, doc = "One or more databases of known polymorphic sites used to exclude regions around known polymorphisms from analysis.", optional = false)
 	private List<FeatureInput<Feature>> knownSites;
 }

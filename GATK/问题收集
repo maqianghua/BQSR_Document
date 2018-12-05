@@ -1,4 +1,41 @@
 问题收集：
+24 森林惩罚法{
+	利用森林惩罚法（实际上就是将误差向下取整，增大质量值）
+}
+23 HMM{
+	执行隐马尔模型的条件：错配或匹配到reference
+		SNP：M，EQ，X：
+	隐马尔模型：
+		假如是indel或者该碱基没有比对到最优的位点，质量值就是4
+		否则：条件：原始质量小于隐马尔模型质量：是：质量值就是原始质量值，否：隐马尔模型质量值
+}
+22 Leaf<T>{
+	// 属于内部类
+	public final class NestedIntegerArray<T extends Serializable> implements Serializable{
+		public static class Leaf<T>
+	}
+	对于QualityTable：leaf
+		key:[rg,quality,eventIndex]
+	
+
+}
+21 NestedIntegerArray{
+	public final class NestedIntegerArray<T extends Serializable> implements Serializable{
+		public NestedIntegerArray(final int... dimensions){
+			// dimensions[0]:readGroups的数量
+			data = new Object[dimensions[0]];
+			// dimensions[1]:事件类型的长度3
+		}
+	}
+}
+20 indexByClass{
+	private final Map<Class<? extends Covariate>, Integer> indexByClass
+	存储的是协变量字节码文件对象及其索引值。
+}
+19 num observations{
+	表示的是观察到的碱基数量？
+	P(error)=num mismatches/num observations
+}
 18 RecalDatum{
 	说明：重矫正数据(recalTable)的独立一块，每一块统计了组合协变量的观察数数量和错配到ref上的mismatch数。
 	private static final double MULTIPLIER = 100000.0;//关于multiplier是什么可以参见在numMismatches的讨论
@@ -7,6 +44,7 @@
 	格式：private final EventType[] cachedEventTypes;
 	
 16 对于read上每个碱基计算的所有协变量矩阵的理解：
+	public final class ReadCovariates
 	private final int[][][] keys;
 		说名：所有的键值，按事件类型x索引read长度x的协变量
 		举例：keys = new int[EventType.values().length][readLength][numberOfCovariates]
@@ -19,7 +57,7 @@
 14 执行BAQ修正：public boolean enableBAQ = false;默认值是false，不修正
 
 13 是否执行BAQ，判断是否为包含non-PF的reads？
-
+	非pass filter的read
 12 BAQ.java
 	HMM:Hidden Markov Model（隐马尔科夫模型）
 

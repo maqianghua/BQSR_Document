@@ -8,13 +8,14 @@ D:\GitHub\back\gatk\src\main\java\org\broadinstitute\hellbender\utils\recalibrat
  	// 针对每条read在该位点获取不同的协变量值，并基于该碱基是否匹配到reference特定的位置，在map中增加该位置。
  	 public void processRead( final GATKRead originalRead, final ReferenceDataSource refDS, final Iterable<? extends Locatable> knownSites ){
  	 	// read转换
- 	 	final ReadTransformer transform = makeReadTransform();
+ 	 	/ final ReadTransformer transform = makeReadTransform();
  	 	private ReadTransformer makeReadTransform() {
- 	 		ReadTransformer f0 = (ReadTransformer) BaseRecalibrationEngine::consolidateCigar;
+ 	 		/ ReadTransformer f0 = (ReadTransformer) BaseRecalibrationEngine::consolidateCigar;
+ 	 		private static GATKRead consolidateCigar( final GATKRead read )
  	 		private static GATKRead consolidateCigar( final GATKRead read ){
 				// 总是合并cigar字符串成一个标准(canonical)的模式，折叠0长度/重复的cigar元素； 下游的编码没必要处理非合并的（non-consolidated）cigar字符串
 				read.setCigar(AlignmentUtils.consolidateCigar(read.getCigar()));{
-					// 返回一个Cigar对象描述read是如何比对到reference上的，假如没有cigar的话，那就返回一个空的Cigar对象。假如有必要该方法会在read中复制一个cigar，因此修改该方法的返回值，不会修改read的Cigar。该方法的调用者仅仅想迭代Cigar的元素，应该调用getCigarElements()代替，他能都提供更好的性能，避免了对象的建立。
+					// 返回一个Cigar对象描述read是如何比对到reference上的，假如没有cigar的话，那就返回一个空的Cigar对象。假如有必要该方法会在read中复制一个cigar，因此修改该方法的返回值，不会修改read的Cigar。该方法的调用者仅仅想迭代Cigar的元素，应该调用getCigarElements()代替，他能提供更好的性能，避免了对象的建立。
 					Cigar getCigar();
 					// 需要你一个格式良好，合并了的Cigar字符串，从而使得左边的对比代码能正确执行，举例：1M1M1M1D2M1M-->3M3D3M;假如给定的cigar是空值，然后返回的cigar也是空值。注意：折叠这种cigar大小是0的元素。因此2M0M=>2M.输入需要合并的cigar；返回一个连续匹配操作的非空cigar，合并成一个操作（运算符）。
 					public static Cigar consolidateCigar( final Cigar c )
@@ -22,42 +23,40 @@ D:\GitHub\back\gatk\src\main\java\org\broadinstitute\hellbender\utils\recalibrat
 					 void setCigar( final Cigar cigar );
 				}
  	 		}
- 	 		final ReadTransformer readTransformer1 = f.andThen((ReadTransformer) BaseRecalibrationEngine.this::setDefaultBaseQualities);}{
- 	 			private GATKRead setDefaultBaseQualities( final GATKRead read ){
- 	 				// 假如我们使用默认质量值，假如需要它们就检查，假如有必要就添加它们
-		 	 	 	// 1. 假如reads有缺失或者有不完整的质量分数，我们就需要检查
-		 	 	 	// 2. 假如默认的碱基质量有一个positive（阳性）的值，我们就添加它们
- 	 			}
+ 	 		/ final ReadTransformer readTransformer1 = f.andThen((ReadTransformer) BaseRecalibrationEngine.this::setDefaultBaseQualities);
+ 			private GATKRead setDefaultBaseQualities( final GATKRead read ){
+ 				// 检查假如我们是否需要使用默认质量值，假如有必要就添加默认值
+	 	 	 	// 1. 假如reads有缺失或者有不完整的质量分数，我们就需要默认质量值
+	 	 	 	// 2. 假如默认的碱基质量是一个的正值，我们就添加默认质量值
  	 		}	
- 	 	 	f.andThen(read -> resetOriginalBaseQualities(read));{
- 	 	 		private GATKRead resetOriginalBaseQualities( final GATKRead read ){
- 	 	 			// 假如用户不使用原始碱基的质量直接返回read{
- 	 	 				// 该标记是告诉GATK使用原始的碱基质量（在BQSR重矫正之前的数据中），被存储在OQ标签中。假如它们存在（OQ），就不使用矫正后的质量分数。read中没有OQ标签，将会使用标准的质量值分数。
- 	 	 				@Argument(fullName="use-original-qualities", shortName = "OQ", doc = "Use the base quality scores from the OQ tag", optional = true)
-    					public Boolean useOriginalBaseQualities = false;
- 	 	 			}
- 	 	 			// 假如使用原始的碱基质量
- 	 	 			return ReadUtils.resetOriginalBaseQualities(read);
- 	 	 			// 重置read的质量分数到原始值（BQSR前）
- 	 	 			public static GATKRead resetOriginalBaseQualities(final GATKRead read) 
- 	 	 		}
- 	 	 	} 	 	 	
- 	 	 	f.andThen(ReadClipper::hardClipAdaptorSequence);{
+ 	 	 	/ f.andThen(read -> resetOriginalBaseQualities(read));{
+ 	 		private GATKRead resetOriginalBaseQualities( final GATKRead read ){
+ 	 			// 假如用户不使用原始碱基的质量直接返回read{
+ 	 				// 该标记是告诉GATK使用原始的碱基质量（在BQSR重矫正之前的数据中），被存储在OQ标签中。假如它们存在（OQ），就不使用矫正后的质量分数。read中没有OQ标签，将会使用标准的质量值分数。
+ 	 				@Argument(fullName="use-original-qualities", shortName = "OQ", doc = "Use the base quality scores from the OQ tag", optional = true)
+					public Boolean useOriginalBaseQualities = false;
+ 	 			}
+ 	 			// 假如使用原始的碱基质量， 重置read的质量分数到原始值（BQSR前）
+ 	 			/ return ReadUtils.resetOriginalBaseQualities(read); 	 			
+ 	 			public static GATKRead resetOriginalBaseQualities(final GATKRead read) 
+ 	 		}	 	 	
+ 	 	 	/ f.andThen(ReadClipper::hardClipAdaptorSequence);{
  	 	 		public static GATKRead hardClipAdaptorSequence (final GATKRead read){
  	 	 			return new ReadClipper(read).hardClipAdaptorSequence();{
-	 	 	 			// 初始化一个ReadClipper对象；使用add0P方法，你可以设置你的Clpping操作对象。当你已准备好利用所有的Clpping操作对象生成一个新read的时候，就用clipRead().注意：假如你想在一个read上使用Clipping0p类设置一个多操作对象就用该对象。假如你仅仅想应用一个典型的模式的clipping，在该类中使用可得到的静态的clipping函数作为代替方法。；返回clip的read
-	 	 	 			public ReadClipper(final GATKRead read) 
-	 	 	 			// 检查是否一个read时候包含接头序列，假如有，就硬过滤掉他们。注意：想明白一个read怎么被检查包含接头序列，查看ReadUtils.getAdaptorBoundary()；返回一个不包含接头序列的新read（有没有比对上的read，就返回空值）
+ 	 	 				// 检查是否一个read时候包含接头序列，假如有，就硬过滤掉他们。注意：想明白一个read怎么被检查包含接头序列，查看ReadUtils.getAdaptorBoundary()；返回一个不包含接头序列的新read（有没有比对上的read，就返回空值）
 	 	 	 			private GATKRead hardClipAdaptorSequence ()
+	 	 	 			// 初始化一个ReadClipper对象；使用add0P方法，你可以设置你的Clpping操作对象。当你已准备好利用所有的Clpping操作对象生成一个新read的时候，就用clipRead().注意：假如你想在一个read上使用Clipping0p类设置一个多操作对象就用该对象。假如你仅仅想应用一个典型的模式的clipping，在该类中使用可得到的静态的clipping函数作为代替方法。返回：clip的read
+	 	 	 			public ReadClipper(final GATKRead read) 	 	 	 			
  	 	 			}
  	 	 		}
  	 	 	}
  	 	 	final ReadTransformer readTransformer = f.andThen(ReadClipper::hardClipSoftClippedBases);{
  	 	 		public static GATKRead hardClipSoftClippedBases (final GATKRead read){
- 	 	 			return new ReadClipper(read).hardClipSoftClippedBases();{
- 	 	 				// 初始化一个ReadClipper对象；使用add0P方法，你可以设置你的Clpping操作对象。当你已准备好利用所有的Clpping操作对象生成一个新read的时候，就用clipRead().注意：假如你想在一个read上使用Clipping0p类设置一个多操作对象就用该对象。假如你仅仅想应用一个典型的模式的clipping，在该类中使用可得到的静态的clipping函数作为代替方法。；返回clip的read
-	 	 	 			public ReadClipper(final GATKRead read) 
+ 	 	 			return new ReadClipper(read).hardClipSoftClippedBases();{ 	 	 				
 	 	 	 			// 在read上将会硬clip每一个已被软clipped碱基；返回：没有已被软clipped碱基的新read（假如所有碱基都是被软clipped且硬clips，非比对read，应该返回空值）
+	 	 	 			private GATKRead hardClipSoftClippedBases ()
+ 	 	 				// 初始化一个ReadClipper对象；使用add0P方法，你可以设置你的Clpping操作对象。当你已准备好利用所有的Clpping操作对象生成一个新read的时候，就用clipRead().注意：假如你想在一个read上使用Clipping0p类设置一个多操作对象就用该对象。假如你仅仅想应用一个典型的模式的clipping，在该类中使用可得到的静态的clipping函数作为代替方法。返回：clip的read
+	 	 	 			public ReadClipper(final GATKRead read) 
  	 	 			}
  	 	 		}
  	 	 	}
@@ -69,18 +68,18 @@ D:\GitHub\back\gatk\src\main\java\org\broadinstitute\hellbender\utils\recalibrat
  	 	// 注意：该函数修用来修改isSNP，isInsertion和isDeletion参数，因此不能被忽略，不管是否执行BAQ
  	 	final int nErrors = calculateIsSNPOrIndel(read, refDS, isSNP, isInsertion, isDeletion);
 		// 定位所有的SNP和indel事件，把他们储存在提供的snp，isIns和isDel数组中；并返回总的SNP和indel事件的数量；输入：检测到的read；reference数据资源，存储snp事件的数组（和read的长度一致，初始化值都是0）；存储insertion事件的数组(和read的长度一致，初始化值都是0)；存储deletion的事件数组（和read的长度一致，初始化值都是0）；返回:总的SNP和indel事件的总数
-		 protected static int calculateIsSNPOrIndel(final GATKRead read, final ReferenceDataSource ref, int[] snp, int[] isIns, int[] isDel) {
+		protected static int calculateIsSNPOrIndel(final GATKRead read, final ReferenceDataSource ref, int[] snp, int[] isIns, int[] isDel) {
 			// 在该reference上查询确定的区间(contig)，并同时获得横跨那个区间的所有碱基。调用getBases()方法在返回的ReferenceSequence获得真实的reference碱基。查看BaseUtils类，引导用户知道，在该格式下是怎样处理碱基的。输入：查询的contig区间；查询区间的开始，查询区间的结束；返回：查询并取出横跨区间且包含所有碱基的ReferenceSequence。			
 			final byte[] refBases = ref.queryAndPrefetch(read.getContig(), read.getStart(), read.getEnd()).getBases();{
-				// 获取该read比对上的contig名称，假如没有独特的比对，有可能会返回null。返回：比对上的contig名称，有肯能是null
+				// 获取该read比对上的contig名称，假如没有独特的比对（没有比对上），有可能会返回null。返回：比对上的contig名称，有可能是null
 				String getContig();
 				// 返回：基于1开始的位置索引，假如getContig()==null，返回值未定义
 				int getStart()
-				// 返回基于1开始，关闭位置的索引，假如getContig()==null，返回值未定义
+				// 返回基于1开始，结束位置的索引，假如getContig()==null，返回值未定义
 				int getEnd()
 			}
 			for (final CigarElement ce : read.getCigarElements()) {
-				// 返回：从该read的不可修改的CigarElements列表;注意：默认实现是返回不可修改的保护视图副本，通过调用getCigar().getCigarElements()； 子类有可能会覆盖该方法
+				// 返回：从该read的不可修改的CigarElements列表;注意：通过调用getCigar().getCigarElements()，默认实现是返回不可修改的保护视图副本； 子类有可能会覆盖该方法
 				read.getCigarElements()
 				for (final CigarElement ce : read.getCigarElements())
 				// 针对不同的Cigar进行相应的操作（自加解释）
@@ -107,29 +106,29 @@ D:\GitHub\back\gatk\src\main\java\org\broadinstitute\hellbender\utils\recalibrat
 					default:
 				}			
 			}
-			// 我们不会边计算边相加，因为它们有可能在相同的地方被设置为1两次；返回：总的SNP和indel事件的总和
+			// 我们不会边计算边相加，因为它们有可能在相同的地方被设置为1两次（同时是snp也是insertion？）；返回：总的SNP和indel事件的总和
 			nEvents += MathUtils.sum(isDel) + MathUtils.sum(isIns);
 		}
-		// 注意：出于效率的原因，我们不计算BAQ数组，除非我们真的有一些忽视的错误。对于ILMN数据大约有85%的reads没有错误
+		// 注意：出于效率的原因，我们不计算BAQ数组，除非我们真的有一些忽视的错误。对于ILMN数据大约有85%的reads没有错误。条件：snp和indel事件数等于0或用户不执行BAQ：其中一个为真：执行flatBAQArray(read):全部为假：执行calculateBAQArray(read,refDS)
 		// final byte[] baqArray = (nErrors == 0 || !recalArgs.enableBAQ) ? flatBAQArray(read) : calculateBAQArray(read, refDS); 
 			// flatBAQArray(read) {
 				// 创建一个BAQ形式的数组，意味着没有比对的不确定性。输入：输入需要执行BAQ的数组，返回：BAQ-style非空的byte[]数组来存储NO_BAQ_UNCERTAINTY（常数64='@'）数值。TODO:如果上面的计算代码是内联的，是否可以通过完全使用内联来优化避免使用这个函数
 				protected static byte[] flatBAQArray(final GATKRead read){
-					// 分配确定的byte数值给每个元素给确定的byte数组。输入：需要填充的数组；数组所有元素存储该值。
+					// 分配确定的byte数值给每个元素给确定的byte数组。输入：需要填充的数组；数组所有元素存储该值(常数64=‘@’)。
 					Arrays.fill(baq, NO_BAQ_UNCERTAINTY);
 					public static void fill(byte[] a, byte val)
 				}
 			// 基于所有碱基的质量值和reference序列，为read计算一个真实的BAQ数组。输入：需要执行BAQ的read；返回：给read返回一个非空BAQ标签的数组
 			// calculateBAQArray(read, refDS)
-			// private byte[] calculateBAQArray( final GATKRead read, final ReferenceDataSource refDS ){
+			private byte[] calculateBAQArray( final GATKRead read, final ReferenceDataSource refDS ){
 				// baq: BAQ the reads ,动态生成比对不确定性向量				
 				// 适当的修改read，使得碱基的质量分数通过执行BAQ计算而覆盖。假如有BAQ标签并且alwaysRecalculate是false，就使用BAQ标签，否则启用HMM标签并在动态中执行BAQ，假如有需要，就使用包含reference碱基的refHeader：返回：假如qmode是DNOT_MODIFY，为用户返回BQ qualities
 				// baq.baqRead(read, refDS, BAQ.CalculationMode.RECALCULATE, BAQ.QualityMode.ADD_TAG);
-				// public byte[] baqRead(GATKRead read, ReferenceDataSource refDS, CalculationMode calculationType, QualityMode qmode ) {
+				public byte[] baqRead(GATKRead read, ReferenceDataSource refDS, CalculationMode calculationType, QualityMode qmode ) {
 					// 通常情况下我们需要重写quals，所以仅仅需要一个引用指向他们
-					// if 假如CalculationMode.OFF，我们不需要做做任何事
+					// if 假如CalculationMode.OFF，我们不需要做任何事
 					// else if ( excludeReadFromBAQ(read) ){
-						// 假如我们认为该read用来执行BAQ是不合格，就返回true；比如包含non-PF的reads，重复的或者未匹配上的reads。假如一个read应该不做任何计算，可以通过BAQ来决定。
+						// 假如我们认为该read用来执行BAQ是不合格，就返回true；比如包含non-PF(非pass-filter详见技术说明6)的reads，重复的或者未匹配上的reads。可以通过baqRead函数来决定一个read是否应该做calculation。
 						// excludeReadFromBAQ(read)
 						// public boolean excludeReadFromBAQ(GATKRead read){
 							// 要保证是mapped reads，不管pairing状态或者是primary比对状态
@@ -151,7 +150,7 @@ D:\GitHub\back\gatk\src\main\java\org\broadinstitute\hellbender\utils\recalibrat
 							}
 							// if 假如hmmResult不等于null{
 								switch ( qmode ) {
-									// 计算BAQ，但是将它作为BAQ标签写入reads中，不需要管QUAL字段
+									// 将隐马尔模型的hmmresult.bq作为BAQ标签值写入read中，不需要管QUAL字段（重点）
 									case ADD_TAG: addBAQTag(read, hmmResult.bq); break;
 									public static void addBAQTag(GATKRead read, byte[] baq){
 											// 编码BAQ标签为BQ标签
@@ -195,10 +194,10 @@ D:\GitHub\back\gatk\src\main\java\org\broadinstitute\hellbender\utils\recalibrat
 			}			
 		}
 		// baqArray不为空;注释：一些reads不能执行BAQ计算{
-			// 在给定read中的每一偏移位置，通过调用covariate.getValues()，计算所有请求的协变量值。它填充一个协变量值数组，result[i][j]表示协变量的值，i表示在read的第i个碱基位置，j表示在requestedCovariates列表中请求的第j个协变量；输入：为计算协变量值得read；read的SAM header；请求的协变量列表；是否应该为indel BQSR计算协变量；返回：针对read上每一个碱基计算所有的协变量值矩阵
+			// 在给定read中的每一偏移位置，通过调用covariate.getValues()，计算所有请求的协变量值。它填充一个协变量值数组，result[i][j]表示协变量的值，i表示在read的第i个碱基位置，j表示在requestedCovariates列表中请求的第j个协变量；输入：需要计算协变量值的read；read的SAM header；请求的协变量列表；是否应该计算记录BQSR的indel 的协变量(默认为true)；返回：针对read上每一个碱基计算所有的协变量值矩阵。
 			// final ReadCovariates covariates = RecalUtils.computeCovariates(read, readsHeader, this.covariates, true, keyCache);
 			// public static ReadCovariates computeCovariates(final GATKRead read, final SAMFileHeader header, final StandardCovariateList covariates, final boolean recordIndelValues, final CovariateKeyCache keyCache){
-				// 利用LRU缓存，保存我们看到的每个read长度的键(int[][][])，而组建的数组缓存;缓存使得我们避免了为每一条read重新建立昂贵的数组。LRU保存缓存数组的总数，比LRU_CACHE_SIZE要小
+				// 利用LRU缓存，保存我们看到的每个read长度的键(int[][][])，而组建键的数组缓存;缓存使得我们避免了为每一条read重新建立昂贵的数组。LRU保存缓存数组的总数，比LRU_CACHE_SIZE（默认是500）要小
 				// final ReadCovariates readCovariates = new ReadCovariates(read.getLength(), covariates.size(), keyCache);
 				// public ReadCovariates(final int readLength, final int numberOfCovariates, final CovariateKeyCache keysCache){
 					// 对于给定read长度获取缓存的值，或者获得没有被缓存的空值。
@@ -209,7 +208,7 @@ D:\GitHub\back\gatk\src\main\java\org\broadinstitute\hellbender\utils\recalibrat
 						 private final int[][][] keys;
 					}
 				}
-				// 通过调用covariate.getValues(...)，针对给定read的每一个偏移位置计算所有的请求协变量值；它填充一个协变量值数组，result[i][j]表示协变量的值，i表示read的第i个碱基位置，j表示协变量列表的第j个协变量；输入：用来计算协变量值的read。read的SAM header；协变量列表；存储协变量值的对象；我们是否应该针对indel BQSR计算协变量值。
+				// 通过调用covariate.getValues(...)，针对给定read的每一个偏移位置计算所有的请求协变量值；它填充一个协变量值数组，result[i][j]表示协变量的值，i表示read的第i个碱基位置，j表示协变量列表的第j个协变量；输入：用来计算协变量值的read。read的SAM header；协变量列表；存储协变量值的对象；我们是否应该针对indel BQSR计算协变量值（默认为true）。
 				// computeCovariates(read, header, covariates, readCovariates, recordIndelValues);
 				// public static void computeCovariates(final GATKRead read, final SAMFileHeader header, final StandardCovariateList covariates, final ReadCovariates resultsStorage, final boolean recordIndelValues) {
 					// 在该read上的所有位点计算于每一个协变量值（协变量值）;并在提供的存储对象中记录该值（协变量值）
@@ -269,15 +268,16 @@ D:\GitHub\back\gatk\src\main\java\org\broadinstitute\hellbender\utils\recalibrat
 			// 根据isDeletion和baqArray计算deletionErrors数组
 			final double[] deletionErrors = calculateFractionalErrorArray(isDeletion, baqArray);
 			/// 收集所有的信息到我们的info object，并更新数据
-			// 使用在recalInfo中的信息，更新recalibration 统计信息;输入：recalInfo 数据结构保存的信息是关于一个单独的read的重矫正值）
+			// 创建ReadRecalibrationInfo info :根据:read , covariates,skip,snpErrors,insertionErrors,deletionsErrors
+			// 使用Info中的信息，更新recalibration 统计信息;输入：recalInfo=Info：数据结构保存的信息是关于一个单独的read的重矫正值）
 			// updateRecalTablesForRead(info);
 			// private void updateRecalTablesForRead( final ReadRecalibrationInfo recalInfo ) {
 				// for( int offset = 0; offset < readLength; offset++ ) {/// read上每个偏移量(碱基位点)
 					// if 假如不是需要跳过的位点{
 						// for (int idx=0;idx<cacheEventTypes.length;idx++){/// 针对缓存的SNP和INDEL，注释：我们快速明确的循环缓存的数据
 							/// 获取事件类型（SNP或INDEL）
-							// 在错误模型的read位点获取所有协变量对应的键值（数组内容[错误模型的序号][碱基位点]）；输入：readPosition；错误模型（SNP或indel）；final int[] keys = readCovariates.getKeySet(offset, eventType);
-							// 获取错误模型对应的枚举类索引：final int eventIndex = eventType.ordinal();
+							// 在错误模型的read位点获取所有协变量对应的键值（int[] keys=[0=readgroup,1=Quality,2=Context,3=Cycle]=keys[错误模型的序号][碱基位点]）；输入：readPosition；错误模型（SNP或indel）；final int[] keys = readCovariates.getKeySet(offset, eventType);
+							// 获取事件类型对应的枚举类索引：final int eventIndex = eventType.ordinal();
 							// 获取事件类型在位点处的质量分数：输入：想要获取质量对应的事件类型，想要获取质量值的read上的偏移位点，返回：该位点事件类型合法的质量分数
 							// final byte qual = recalInfo.getQual(eventType, offset);
 							// public byte getQual(final EventType eventType, final int offset){
@@ -289,7 +289,7 @@ D:\GitHub\back\gatk\src\main\java\org\broadinstitute\hellbender\utils\recalibrat
 									/// 否则抛出非法状态异常（未知的事件类型）
 								}
 							}
-							// 获取事件类型在偏移位置的错误率;说明：错误率在0和1之间的数值，说明在该偏移量处出现错误有多大的可能性，假如值是1，意味着在该位点肯定会出现错误。假如是0.0，说明此处肯定不会出现错误。0.5一半可能出现错误，一半可能不会出现错误。输入：为获取质量值的事件类型，为获取质量值的read偏移量；返回：该位点错误率的权重值
+							// 获取事件类型在偏移位置的错误率;说明：错误率在0和1之间的数值，说明在该偏移量处出现错误有多大的可能性，假如值是1，意味着在该位点肯定会出现错误。假如是0.0，说明此处肯定不会出现错误。0.5一半可能出现错误，一半可能不会出现错误。输入：为获取质量值的事件类型，为获取质量值的read偏移量(碱基位点)；返回：该位点错误率的权重值
 							// final double isError = recalInfo.getErrorFraction(eventType, offset);
 							// public double getErrorFraction(final EventType eventType, final int offset) {
 								// switch 事件类型{
@@ -301,7 +301,7 @@ D:\GitHub\back\gatk\src\main\java\org\broadinstitute\hellbender\utils\recalibrat
 							}
 						}	
 					}
-					// 在特定的table中的特定位置(碱基位点)增加RecalDatum，或者假如没有该项目,就增加一个新的项目。注意：我们有意此处不使用可变参数，为了避免对于每一次调用分配一个数组的性能耗费，它显示在（性能）分析器上；输入：（将）保存项目的表格；该事件的质量；该事件的错误值；表格中项目的位置(即就是对象的索引)
+					// 在特定的table中的特定位置(碱基位点)增加RecalDatum，或者假如没有该项目,就增加一个新的项目。注意：我们有意此处不使用可变参数，为了避免对于每一次调用分配一个数组的性能耗费，它显示在（性能）分析器上；输入：（将）保存项目的表格；该事件的质量；该事件的错误率值；表格中项目的位置(即就是对象的索引)
 					// RecalUtils.incrementDatumOrPutIfNecessary3keys(qualityScoreTable, qual, isError, key0, key1, eventIndex);
 					//  public static void incrementDatumOrPutIfNecessary3keys( final NestedIntegerArray<RecalDatum> table,final byte qual,final double isError,final int key0, final int key1, final int key2){
 						// 专门用来获取3个参数；变量需要一个大的成本，因为每次都要分配变量数组。使用一个特定的方法解决性能问题
@@ -338,11 +338,12 @@ D:\GitHub\back\gatk\src\main\java\org\broadinstitute\hellbender\utils\recalibrat
 							}
 						}// 假如existingDatum不为null{
 							/// 简单案例：假如已经存在，增加就行。
-							/// 增加观察数和mismatch数。
+							/// 增加观察数（碱基数）和mismatch数。
+							/// empiricalQuality=UNINITIALIZED=-1.0
 						}
 					}
-					// for:存在特殊的协变量{
-						// 在特定表格的指定位点增加RecalDatum，或者假如没有的话就增加一个新的RecalDtatum;注释：我们此处不打算使用变量，为避免每次调用分配数组的性能损耗，主要体现在性能分析器上。输入：保存我们项目的表格；该事件的质量值，该事件的错误值，在表格中项目的索引位置(错误模型，碱基位点，事件类型，错误值)
+					// for:存在特殊的协变量(也就是ReadGroup和Quality)，假如其他两个协变量存在，就遍历添加{
+						// 在特定表格的指定位点增加RecalDatum，或者假如没有的话就增加一个新的RecalDtatum;注释：我们此处不打算使用变量，为避免每次调用分配数组的性能损耗，主要体现在性能分析器上。输入：保存我们项目（Context或Cycle）的表格；该事件的质量值，该事件的错误值，0=readGroup，1=Quality，i(2,3)=Context或Cycle；事件索引值
 						// RecalUtils.incrementDatumOrPutIfNecessary4keys(recalTables.getTable(i), qual, isError, key0, key1, keyi, eventIndex)
 						//  public static void incrementDatumOrPutIfNecessary4keys( final NestedIntegerArray<RecalDatum> table,final byte qual,final double isError,final int key0, final int key1, final int key2, final int key3)
 					}

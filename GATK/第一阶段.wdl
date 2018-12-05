@@ -6,7 +6,7 @@
  	Utils.warnOnNonIlluminaReadGroups(getHeaderForReads(), logger);
  	// 根据针对BQSR所有的命令行参数，以及read的header创建BaseRecalibrationEngine对象
  	recalibrationEngine = new BaseRecalibrationEngine(recalArgs, getHeaderForReads()){
- 	 	// 设置BAQ object利用所提供的gap open惩罚值
+ 	 	// 设置BAQ object利用所提供的gap open惩罚值（40是默认值，对于全基因组30会更好一点）
  	 	// 建立一个新的标准的BQSR协变量列表，并初始化每个协变量
  	 	covariates = new StandardCovariateList(recalArgs, readsHeader);{
  	 		// 建立一个新的标准的BQSR协变量列表，并初始化每个协变量
@@ -23,7 +23,7 @@
  	 			// 建立报告质量分数协变量对象
  	 			qualityScoreCovariate = new QualityScoreCovariate(rac);
  	 			// context size(碱基数)的最大值被允许；我们需要保证最左边的碱基自由，这样值才不会是负值.
- 	 			// 同时我们保留4位来表示conext的长度；一个碱基需要2位来编码
+ 	 			// 同时我们储备4位来表示conext的长度；一个碱基需要2位来编码（java的编码原则一个字符两个字节）
  	 			final ContextCovariate contextCovariate = new ContextCovariate(rac);
  	 			// 对于Cycle 协变量，对于ILLUMINA cycle简单指在read上的位置（假如是反向链的read，逆向计算）
  	 			final CycleCovariate cycleCovariate = new CycleCovariate(rac);
@@ -31,10 +31,15 @@
  	 			indexByClass.put(allCovariates.get(i).getClass(), i);
  	 		}
  	 	}
+ 	 	/ 获取readHeader包含的所有ReadGroup数量 int numReadGroups
+ 	 	/ 假如numReadGroups小于1，将抛出read groups必须大于等于1的异常。
+ 	 	/ 创建recalTables对象：通过协变量Covariates和ReadGroup数量numReadGroups
+ 	 	/ 创建可以缓存read长度的对象keyCache：利用LRU缓存保存针对我们看到的每一个read长度的keys数组int[][][]。缓存使得我们避免了对于每一个read重新建立数据int[][][]的花费。LRU保存缓存数组的总数小于LRU_CACHE_SIZE=500
+ 	 	/ 创建缓存的事件类型cacheEventTypes：条件：用户是否计算IndelBQSRTable：是，返回所有的事件类型，否：只返回SNP的事件类型
  	 }
- 	// 列举所有使用的协变量
+ 	// 列举记录所有使用的协变量
  	recalibrationEngine.logCovariatesUsed();
- 	// 利用fasta文件初始化reference数据资源列表，
- 	// 提供的fasta文件必须有.fai 和.dict 文件的同伴
+ 	// 利用fasta文件初始化reference数据资源列表，提供的fasta文件必须有.fai 和.dict 文件的同伴
+ 	/ 获取reference的数据资源
  	referenceDataSource = ReferenceDataSource.of(referenceArguments.getReferencePath());
  }

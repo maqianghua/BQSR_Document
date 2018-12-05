@@ -6,7 +6,8 @@ RecalibratorUtil.wdl
 	/ computeCovariates(read, covariates, readCovariates);
 	public static void computeCovariates(final GaeaSamRecord read, final Covariate[] covariates,ReadCovariates readCovariates){
 		/ 遍历协变量列表元素{
-			
+			/ 设置当前协变量的索引值
+			/ 当前协变量，记录read和read的协变量对象，并记录当前协变量的索引值					
 		}
 	}
 }
